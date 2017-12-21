@@ -130,7 +130,7 @@ Graphics3DRenderer.prototype.init = function ()
                 bool active;
             };
 
-            #define POINT_LIGHT_COUNT 3
+            #define POINT_LIGHT_COUNT 16
 
             uniform Material uMaterial;
             uniform DirLight uDirLight;
@@ -229,22 +229,28 @@ Graphics3DRenderer.prototype.updateUniforms = function (uniformData)
 
         gl.useProgram(program);
         gl.uniform3fv(gl.getUniformLocation(program, 'uCameraPosition'), camera.position);
-        gl.uniform3fv(gl.getUniformLocation(program, 'uDirLight.direction'), dirLight.direction);
-        gl.uniform3fv(gl.getUniformLocation(program, 'uDirLight.ambient'), dirLight.ambient);
-        gl.uniform3fv(gl.getUniformLocation(program, 'uDirLight.diffuse'), dirLight.diffuse);
-        gl.uniform3fv(gl.getUniformLocation(program, 'uDirLight.specular'), dirLight.specular);
-        gl.uniform1i(gl.getUniformLocation(program, 'uDirLight.active'), dirLight.active);
+    
+        if (dirLight.active)
+        {
+            gl.uniform3fv(gl.getUniformLocation(program, 'uDirLight.direction'), dirLight.direction);
+            gl.uniform3fv(gl.getUniformLocation(program, 'uDirLight.ambient'), dirLight.ambient);
+            gl.uniform3fv(gl.getUniformLocation(program, 'uDirLight.diffuse'), dirLight.diffuse);
+            gl.uniform3fv(gl.getUniformLocation(program, 'uDirLight.specular'), dirLight.specular);
+            gl.uniform1i(gl.getUniformLocation(program, 'uDirLight.active'), dirLight.active);
+        }
 
         for (var index = 0; index < pointLights.length; ++index)
         {
             var light = pointLights[index];
-            gl.uniform3fv(gl.getUniformLocation(program, 'uPointLights[' + index + '].position'), light.position);
-            gl.uniform3fv(gl.getUniformLocation(program, 'uPointLights[' + index + '].color'), light.color);
-            gl.uniform1f(gl.getUniformLocation(program, 'uPointLights[' + index + '].constantTerm'), light.constantTerm);
-            gl.uniform1f(gl.getUniformLocation(program, 'uPointLights[' + index + '].linearTerm'), light.linearTerm);
-            gl.uniform1f(gl.getUniformLocation(program, 'uPointLights[' + index + '].quadraticTerm'), light.quadraticTerm);
-            gl.uniform1i(gl.getUniformLocation(program, 'uPointLights[' + index + '].active'), light.active);
-
+            if (light.active)
+            {
+                gl.uniform3fv(gl.getUniformLocation(program, 'uPointLights[' + index + '].position'), light.position);
+                gl.uniform3fv(gl.getUniformLocation(program, 'uPointLights[' + index + '].color'), light.color);
+                gl.uniform1f(gl.getUniformLocation(program, 'uPointLights[' + index + '].constantTerm'), light.constantTerm);
+                gl.uniform1f(gl.getUniformLocation(program, 'uPointLights[' + index + '].linearTerm'), light.linearTerm);
+                gl.uniform1f(gl.getUniformLocation(program, 'uPointLights[' + index + '].quadraticTerm'), light.quadraticTerm);
+                gl.uniform1i(gl.getUniformLocation(program, 'uPointLights[' + index + '].active'), light.active);
+            }
         }
     }
 

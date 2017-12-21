@@ -6,11 +6,13 @@ function Graphics3D(renderer)
     this.dirLight = new DirLight3D(0, 0, 0);
     this.pointLights = [];
 
-    for (var index = 0; index < 3; ++index)
+    for (var index = 0; index < Graphics3D.MAX_LIGHTS; ++index)
     {
         this.pointLights[index] = new PointLight3D(0, 0, 0);
     }
 }
+
+Graphics3D.MAX_LIGHTS = 16;
 
 Graphics3D.prototype.cloneStaticMesh = function (x, y, z, staticMesh)
 {
