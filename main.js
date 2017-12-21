@@ -33,7 +33,7 @@ function onComplete (data)
         let mesh = scene.makeStaticMesh(0, 0, 0, meshData);
         mesh.rotateY(180 * Math.PI / 180);
         mesh.setScale(scale, scale, scale);
-        mesh.material = new FlatMaterial3D();
+        mesh.material = new Material3D();
         mesh.material.setDiffuse(0.1, 0.1, 0.1);
         mesh.material.setSpecular(1.0, 1.0, 1.0);
         mesh.material.setShininess(500);
@@ -45,7 +45,7 @@ function onComplete (data)
         let mesh0 = scene.makeStaticMesh(-3, 0, 0, cubeMeshData).setScale(0.5, 0.5, 0.5);
         let mesh1 = scene.makeStaticMesh(3, 0, 0, cubeMeshData).setScale(0.5, 0.5, 0.5);
         let mesh2 = scene.makeStaticMesh(0, -1.5, 0, cubeMeshData).rotateX(-90 * Math.PI / 180).setScale(4, 4, 0.4);
-        let material = new FlatMaterial3D();
+        let material = new Material3D();
         
         material.setDiffuse(0.1, 0.1, 0.1);
 
