@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Graphics3D Phaser V3 Prototype</title>
+    <style type="text/css">
+        canvas
+        {
+            display: block;
+            margin: 0 auto;
+        }
+        #msg
+        {
+            width: 400px;
+            text-align: center;
+            display: block;
+            margin: 0 auto;
+            font-size: 30px;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas" width="1024" height="640"></canvas>
+<script type="text/javascript" src="Camera3D.js"></script>
+<script type="text/javascript" src="DirLight3D.js"></script>
+<script type="text/javascript" src="gl-matrix.min.js"></script>
+<script type="text/javascript" src="gl-utils.js"></script>
+<script type="text/javascript" src="Graphics3D.js"></script>
+<script type="text/javascript" src="Graphics3DRenderer.js"></script>
+<script type="text/javascript" src="main.js"></script>
+<script type="text/javascript" src="Material3D.js"></script>
+<script type="text/javascript" src="PointLight3D.js"></script>
+<script type="text/javascript" src="StaticMesh3D.js"></script>
+
+<!--OBJPAR-->
+<script type="text/javascript" src="objpar.js"></script>
+<script type="text/javascript">
+
+    function ParseOBJ(text)
+    {
+        function AppendUV(d)
+        {
+            var a = Array.prototype.slice.call(d);
+            var b = [];
+            var data = [];
+            var str = '';
+            for (var i = 0; i < a.length; i += 6)
+            {
+                var n = a.slice(i, i + 6);
+                n.push(0, 0);
+
+                Array.prototype.push.apply(data, n);
+            }
+            return data;
+        }
+
+        var obj = objpar(text);
+        var meshData = objpar_to_mesh(obj);
+
+        meshData.vertices = new Float32Array(AppendUV(meshData.vertices));
+        
+        return meshData;
+    }
+</script>
+</body>
+</html>
