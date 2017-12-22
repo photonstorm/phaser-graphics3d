@@ -283,7 +283,7 @@ Graphics3DRenderer.prototype.draw = function (drawPacket)
     var pointLights = drawPacket.pointLights;
     var meshData = mesh.meshData;
     
-    if (!meshData) return;
+    if (!meshData || meshData.vertexCount === 0) return;
 
     gl.bindBuffer(gl.ARRAY_BUFFER, meshData.vbo);
 
