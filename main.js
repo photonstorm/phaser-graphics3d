@@ -17,7 +17,7 @@ function onComplete (data)
     scene.camera = new Camera3D();
     scene.camera.setPerspective(Math.PI / 4.0, canvas.width / canvas.height, 0.1, 1000.0);
     scene.camera.lookAt(0, 0, -7, 0, 0, 0);
-    scene.dirLight.setDirection(0, 0.5, -1);
+    scene.dirLight.setDirection(0, 0, -1);
     scene.pointLights[0].setColor(0.0, 1.0, 0.0);
     scene.pointLights[1].setColor(1.0, 0.0, 0.0);
     scene.pointLights[2].setColor(0.0, 0.0, 1.0);
@@ -35,6 +35,8 @@ function onComplete (data)
         mesh.rotateY(180 * Math.PI / 180);
         mesh.setScale(scale, scale, scale);
         mesh.material = new Material3D();
+        mesh.material.setSpecular(1.0, 1.0, 1.0);
+        mesh.material.setShininess(512);
         scene.add(mesh, lightMesh0, lightMesh1, lightMesh2);
         meshes.push(mesh);
     }
