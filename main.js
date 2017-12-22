@@ -70,9 +70,13 @@ function onComplete (data)
     }
 
     var t = 1.0;
-
+    var lastTime = 0.0;
+    var frameTimeOutput = document.getElementById('msg');
     function renderScene(time)
     {
+        var delta = time - lastTime;
+        frameTimeOutput.innerHTML = delta.toFixed(2) + ' ms';
+        lastTime = time;
         for (var i = 0; i < meshes.length; ++i)
         {
             meshes[i].rotateY(-0.01);
