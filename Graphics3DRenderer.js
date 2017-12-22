@@ -124,9 +124,8 @@ Graphics3DRenderer.prototype.init = function ()
             {
                 vec3 position;
                 vec3 color;
-                float constantTerm;
-                float linearTerm;
-                float quadraticTerm;
+                float intensity;
+                float range;
                 bool active;
             };
 
@@ -140,18 +139,25 @@ Graphics3DRenderer.prototype.init = function ()
             varying vec3 outEyePosition;
             varying vec3 outNormal;
 
+            float SafePow(float x, float y)
+            {
+                return (y > 0.0) ? pow(x, y) : 0.0;
+            }
+
             vec3 GetDirLight(DirLight light, Material material, vec3 normal, vec3 eyeView)
             {
                 vec3 finalColor = vec3(0);
-                vec3 diffuse = max(dot(normalize(normal), light.direction), 0.0) * (material.diffuse + light.diffuse / 2.0);
-                vec3 halfVector = normalize(eyeView + light.direction);
-                vec3 specular = pow(dot(normalize(normal), halfVector), material.shininess) * (material.specular + light.specular / 2.0);
+                float normDotLight = max(dot(normalize(normal), normalize(light.direction)), 0.0);
+                vec3 diffuse = normDotLight * (material.diffuse + light.diffuse / 2.0);
+                vec3 halfVector = normalize(eyeView + normalize(light.direction));
+                float normDotHalfVec = max(dot(normalize(normal), halfVector), 0.0);
+                vec3 specular = SafePow(normDotHalfVec, material.shininess) * (material.specular + light.specular / 2.0);
                 vec3 ambient = (material.ambient + light.ambient / 2.0);
-                vec3 emission = material.emission;
 
-                finalColor = diffuse + specular + ambient + emission;
+                finalColor = diffuse + specular + ambient + material.emission;
 
                 return finalColor;
+
             }
 
             vec3 GetPointLight(PointLight light, Material material, vec3 normal, vec3 eyeView)
@@ -159,18 +165,14 @@ Graphics3DRenderer.prototype.init = function ()
                 vec3 finalColor = vec3(0.0);
                 vec3 lightDir = light.position - eyeView;
                 float normDotLight = max(dot(normalize(normal), normalize(lightDir)), 0.0);
-
-                if (normDotLight > 0.0)
-                {
-                    float lightDistance = length(lightDir);
-                    float attenuation = 1.0 / (light.constantTerm + light.linearTerm * lightDistance + light.quadraticTerm * lightDistance * lightDistance);                
-                    vec3 diffuse = attenuation * (normDotLight * (material.diffuse + light.color / 2.0));
-                    vec3 halfVector = normalize(eyeView + lightDir);
-                    float normDotHalfVec = max(dot(normalize(normal), halfVector), 0.0);
-                    vec3 specular = attenuation * material.specular * pow(normDotHalfVec, material.shininess);
-                    finalColor = (diffuse + specular);
-
-                }
+                float lightDistance = length(lightDir);
+                float denom = max(lightDistance - light.range, 0.0) / light.range + 1.0;
+                float attenuation = max(light.intensity / (denom * denom), 0.0);
+                vec3 diffuse = (normDotLight * (material.diffuse + light.color / 2.0));
+                vec3 halfVector = normalize(eyeView + lightDir);
+                float normDotHalfVec = max(dot(normalize(normal), halfVector), 0.0);
+                vec3 specular = (material.specular + light.color / 2.0) * SafePow(normDotHalfVec, material.shininess);
+                finalColor = attenuation * (diffuse + specular);
 
                 return finalColor;
             }
@@ -229,7 +231,13 @@ Graphics3DRenderer.prototype.updateUniforms = function (uniformData)
 
         gl.useProgram(program);
         gl.uniform3fv(gl.getUniformLocation(program, 'uCameraPosition'), camera.position);
-    
+
+        if (dirLight.lastActiveState !== dirLight.active)
+        {
+            dirLight.lastActiveState = dirLight.active;
+            gl.uniform1i(gl.getUniformLocation(program, 'uDirLight.active'), dirLight.active);
+        }
+
         if (dirLight.active)
         {
             gl.uniform3fv(gl.getUniformLocation(program, 'uDirLight.direction'), dirLight.direction);
@@ -242,14 +250,22 @@ Graphics3DRenderer.prototype.updateUniforms = function (uniformData)
         for (var index = 0; index < pointLights.length; ++index)
         {
             var light = pointLights[index];
+            
+            if (light.lastActiveState !== light.active)
+            {
+                light.lastActiveState = light.active;
+                gl.uniform1i(gl.getUniformLocation(program, 'uPointLights[' + index + '].active'), light.active);
+            }
+
             if (light.active)
             {
                 gl.uniform3fv(gl.getUniformLocation(program, 'uPointLights[' + index + '].position'), light.position);
                 gl.uniform3fv(gl.getUniformLocation(program, 'uPointLights[' + index + '].color'), light.color);
-                gl.uniform1f(gl.getUniformLocation(program, 'uPointLights[' + index + '].constantTerm'), light.constantTerm);
-                gl.uniform1f(gl.getUniformLocation(program, 'uPointLights[' + index + '].linearTerm'), light.linearTerm);
-                gl.uniform1f(gl.getUniformLocation(program, 'uPointLights[' + index + '].quadraticTerm'), light.quadraticTerm);
-                gl.uniform1i(gl.getUniformLocation(program, 'uPointLights[' + index + '].active'), light.active);
+                gl.uniform1f(gl.getUniformLocation(program, 'uPointLights[' + index + '].intensity'), light.intensity);
+                gl.uniform1f(gl.getUniformLocation(program, 'uPointLights[' + index + '].range'), light.range);
+                //gl.uniform1f(gl.getUniformLocation(program, 'uPointLights[' + index + '].constantTerm'), light.constantTerm);
+                //gl.uniform1f(gl.getUniformLocation(program, 'uPointLights[' + index + '].linearTerm'), light.linearTerm);
+                //gl.uniform1f(gl.getUniformLocation(program, 'uPointLights[' + index + '].quadraticTerm'), light.quadraticTerm);
             }
         }
     }

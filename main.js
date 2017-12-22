@@ -12,6 +12,7 @@ function onComplete (data)
     var lightMesh1 = scene.makeStaticMesh(0, 0, -1, cubeMeshData).setScale(0.05, 0.05, 0.05);
     var lightMesh2 = scene.makeStaticMesh(0, 0, -1, cubeMeshData).setScale(0.05, 0.05, 0.05);
     var meshes = [];
+    var meshes0 = [];
 
     scene.camera = new Camera3D();
     scene.camera.setPerspective(Math.PI / 4.0, canvas.width / canvas.height, 0.1, 1000.0);
@@ -24,7 +25,7 @@ function onComplete (data)
     lightMesh1.setFlatColor(1, 0, 0);
     lightMesh2.setFlatColor(0, 0, 1);
 
-    scene.dirLight.active = true;
+    scene.dirLight.active = !true;
     scene.pointLights[0].active = true;
     scene.pointLights[1].active = true;
     scene.pointLights[2].active = true;
@@ -34,9 +35,6 @@ function onComplete (data)
         mesh.rotateY(180 * Math.PI / 180);
         mesh.setScale(scale, scale, scale);
         mesh.material = new Material3D();
-        mesh.material.setDiffuse(0.1, 0.1, 0.1);
-        mesh.material.setSpecular(1.0, 1.0, 1.0);
-        mesh.material.setShininess(500);
         scene.add(mesh, lightMesh0, lightMesh1, lightMesh2);
         meshes.push(mesh);
     }
@@ -47,29 +45,25 @@ function onComplete (data)
         let mesh2 = scene.makeStaticMesh(0, -1.5, 0, cubeMeshData).rotateX(-90 * Math.PI / 180).setScale(4, 4, 0.4);
         let material = new Material3D();
         
-        material.setDiffuse(0.1, 0.1, 0.1);
-
         mesh0.material = material;
         mesh1.material = material;
         mesh2.material = material;
 
+
         scene.add(mesh0, mesh1, mesh2);
+        meshes0.push(mesh0, mesh1);
     }
 
     var on = false;
 
     window.onclick = window.ontouchend = function (evt) {
+        if (scene.dirLight.active)
+        {   
+            scene.dirLight.active = false;
+        }
+        else
         {
-            if (on)
-            {   
-                scene.dirLight.active = false;
-                on = false;
-            }
-            else
-            {
-                scene.dirLight.active = true;
-                on = true;
-            }
+            scene.dirLight.active = true;
         }
     }
 
@@ -81,9 +75,13 @@ function onComplete (data)
         {
             meshes[i].rotateY(-0.01);
         }
+        for (var i = 0; i < meshes0.length; ++i)
+        {
+            meshes0[i].rotateX(-0.01);
+        }
         scene.pointLights[0].setPosition(Math.sin(t) * 2, 1, Math.cos(t) * 2);
         scene.pointLights[1].setPosition(Math.sin(-t) * 2, 1, Math.cos(t) * 2);
-        scene.pointLights[2].setPosition(0, 1+ Math.sin(t ) * 2, Math.cos(-t) * 2);
+        scene.pointLights[2].setPosition(0, 1+ Math.sin(t) * 2, Math.cos(-t) * 2);
         lightMesh0.setPosition(
             scene.pointLights[0].position[0],
             scene.pointLights[0].position[1],
@@ -124,7 +122,7 @@ function loadFile(name, callback)
 
 window.onload = function ()
 {
-    loadFile('data/torus.obj', function (data) {
+    loadFile('data/teapot.obj', function (data) {
         onComplete(ParseOBJ(data));
     });
 };

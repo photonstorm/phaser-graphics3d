@@ -1,10 +1,10 @@
 function Material3D()
 {
     this.ambient = vec3.fromValues(0.2, 0.2, 0.2);
-    this.diffuse = vec3.fromValues(0.8, 0.8, 0.8);
+    this.diffuse = vec3.fromValues(0.5, 0.5, 0.5);
     this.specular = vec3.fromValues(0.0, 0.0, 0.0);
     this.emission = vec3.fromValues(0.0, 0.0, 0.0);
-    this.shininess = 0.0;
+    this.shininess = 0;
 }
 
 Material3D.prototype.setAmbient = function (r, g, b)
@@ -45,7 +45,7 @@ Material3D.prototype.setEmission = function (r, g, b)
 
 Material3D.prototype.setShininess = function (shininess)
 {
-    this.shininess = shininess;
+    this.shininess = Math.max(shininess, 0.0);
 
     return this;
 };

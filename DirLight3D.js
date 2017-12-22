@@ -1,10 +1,11 @@
 function DirLight3D(x, y, z)
 {
     this.direction = vec3.fromValues(x, y, z);
-    this.ambient = vec3.fromValues(0.0, 0.0, 0.0);
+    this.ambient = vec3.fromValues(0.1, 0.1, 0.1);
     this.diffuse = vec3.fromValues(0.1, 0.1, 0.1);
-    this.specular = vec3.fromValues(0.0, 0.0, 0.0);
+    this.specular = vec3.fromValues(0.1, 0.1, 0.1);
     this.active = false;
+    this.lastActiveState = false;
 }
 
 DirLight3D.prototype.setDirection = function (x, y, z)
