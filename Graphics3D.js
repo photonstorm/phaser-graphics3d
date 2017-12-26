@@ -46,10 +46,10 @@ Graphics3D.prototype.makeMeshData = function (vertices, vertexCount)
     return meshData;
 };
 
-Graphics3D.prototype.makeStaticMesh = function (x, y, z, meshData)
+Graphics3D.prototype.makeStaticMesh = function (x, y, z, meshData, texture)
 {
     var gl = this.renderer.gl;
-    var mesh = new StaticMesh3D(x, y ,z, meshData);
+    var mesh = new StaticMesh3D(x, y, z, meshData, texture);
 
     return mesh;
 };

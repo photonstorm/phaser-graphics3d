@@ -3,11 +3,10 @@ function MeshData3D()
 {
     this.vbo = null;
     this.vertices = null;
-    this.texture = null;
     this.vertexCount = 0;
 }
 
-function StaticMesh3D(x, y, z, meshData)
+function StaticMesh3D(x, y, z, meshData, texture)
 {
 
     this.position = vec3.fromValues(x, y, z);
@@ -16,6 +15,7 @@ function StaticMesh3D(x, y, z, meshData)
     this.meshData = meshData ? meshData : new MeshData3D();
     this.material = null;
     this.flatColor = vec3.fromValues(1.0, 1.0, 1.0);
+    this.texture = texture ? texture : null;
 
 }
 

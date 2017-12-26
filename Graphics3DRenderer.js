@@ -289,7 +289,7 @@ Graphics3DRenderer.prototype.draw = function (drawPacket)
 
     mat4.fromRotationTranslationScale(model, mesh.quaternion, mesh.position, mesh.scale);
 
-    if (meshData.texture === null)
+    if (mesh.texture === null)
     {
         if (mesh.material === null)
         {

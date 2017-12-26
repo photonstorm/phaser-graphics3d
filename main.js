@@ -15,17 +15,22 @@ function onComplete (data)
     //scene.dirLight.active = true;
 
     scene.pointLights[0].active = true;
-    scene.pointLights[0].setPosition(0, -8, 7);
+    scene.pointLights[0].range = 2;
+    scene.pointLights[0].intensity = 2;
+    scene.pointLights[0].setPosition(0, 2, 0);
     scene.pointLights[0].setColor(1, 0, 0);
-
-    var material = new Material3D();
 
     for (var x = -4; x <= 4; ++x)
     {
-        for(var z = 0; z < 100; ++z)
+        for(var z = 0; z < 50; ++z)
         {
-            var mesh = scene.makeStaticMesh(x, -2.5, 100-z, cubeMeshData).setScale(0.25, 0.25, 0.25);
-            //mesh.material = material;
+            var mesh = scene.makeStaticMesh(x, -2.5, z, meshData).setScale(0.25, 0.25, 0.25);
+            var scale = 0.2 + Math.random() * 0.25;
+            mesh.material = new Material3D();
+            mesh.material.setDiffuse(Math.random(), Math.random(), Math.random());
+            mesh.material.setSpecular(Math.random(), Math.random(), Math.random());
+            mesh.material.setShininess(Math.random() * 512);
+            mesh.setScale(scale, scale, scale);
             scene.add(mesh);
             meshes.push(mesh); 
         }
@@ -43,8 +48,10 @@ function onComplete (data)
         for (var index = 0; index < meshes.length; ++index)
         {
             meshes[index].rotateY(0.01);
+            meshes[index].position[1] = -2.5 + Math.sin(t + index) * 0.2;
         }
 
+        scene.pointLights[0].setPosition(0, 2, Math.sin(t) * 10);
         scene.render();
 
         t += 0.02;
