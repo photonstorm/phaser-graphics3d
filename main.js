@@ -26,10 +26,10 @@ function onComplete (data)
         {
             var mesh = scene.makeStaticMesh(x, -2.5, z, meshData).setScale(0.25, 0.25, 0.25);
             var scale = 0.2 + Math.random() * 0.25;
-            mesh.material = new Material3D();
-            mesh.material.setDiffuse(Math.random(), Math.random(), Math.random());
-            mesh.material.setSpecular(Math.random(), Math.random(), Math.random());
-            mesh.material.setShininess(Math.random() * 512);
+            //mesh.material = new Material3D();
+            //mesh.material.setDiffuse(Math.random(), Math.random(), Math.random());
+            //mesh.material.setSpecular(Math.random(), Math.random(), Math.random());
+            //mesh.material.setShininess(Math.random() * 512);
             mesh.setScale(scale, scale, scale);
             scene.add(mesh);
             meshes.push(mesh); 
