@@ -3,7 +3,17 @@ function Camera3D()
     this.projection = mat4.create();
     this.view = mat4.create();
     this.position = vec3.create();
+    this.clearColor = vec3.create();
 }
+
+Camera3D.prototype.setClearColor = function (r, g, b)
+{
+    this.clearColor[0] = r;
+    this.clearColor[1] = g;
+    this.clearColor[2] = b;
+
+    return this;
+};
 
 Camera3D.prototype.setPosition = function (x, y, z)
 {

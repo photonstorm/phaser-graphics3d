@@ -60,8 +60,11 @@
         var obj = objpar(text);
         var meshData = objpar_to_mesh(obj);
 
-        meshData.vertices = new Float32Array(AppendUV(meshData.vertices));
-        
+        if (meshData.attributes.texcoord)
+            meshData.vertices = new Float32Array(meshData.vertices);
+        else
+            meshData.vertices = new Float32Array(AppendUV(meshData.vertices));
+
         return meshData;
     }
 </script>

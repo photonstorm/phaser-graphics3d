@@ -74,8 +74,8 @@ var objpar = function (str)
 
 	struct Vertex {
 		vec3 position;
-		vec3 texcoord; // If it's provided
 		vec3 normal;   // If it's provided
+		vec2 texcoord; // If it's provided
 	};
 */
 var objpar_to_mesh = function (obj) 
@@ -132,16 +132,6 @@ var objpar_to_mesh = function (obj)
 				debugger;
 			vertices.push(x, y, z);
 		}
-		if (obj.texcoords.length > 0)
-		{
-			let idx = (face[1] - 1) * 3;
-			let x = obj.texcoords[idx + 0];
-			let y = obj.texcoords[idx + 1];
-			let z = obj.texcoords[idx + 2];
-			if (x === undefined || y === undefined || z === undefined)
-				debugger;
-			vertices.push(x, y, z);
-		}
 		if (obj.normals.length > 0)
 		{
 			let idx = (face[2] - 1) * 3;
@@ -151,6 +141,16 @@ var objpar_to_mesh = function (obj)
 			if (x === undefined || y === undefined || z === undefined)
 				debugger;
 			vertices.push(x, y, z);
+		}
+		if (obj.texcoords.length > 0)
+		{
+			let idx = (face[1] - 1) * 2;
+			let x = obj.texcoords[idx + 0];
+			let y = obj.texcoords[idx + 1];
+			//let z = obj.texcoords[idx + 2];
+			if (x === undefined || y === undefined)// || z === undefined)
+				debugger;
+			vertices.push(x, y);
 		}
 	}
 

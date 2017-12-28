@@ -58,11 +58,11 @@ Graphics3D.prototype.makeQuadMeshData = function ()
 {
     return this.makeMeshData(new Float32Array([
             -1.0, +1.0, +0.0,  0.0, 0.0, 1.0,  0.0, 0.0,
-            -1.0, -1.0, +0.0,  0.0, 0.0, 1.0,  0.0, 0.0,
-            +1.0, -1.0, +0.0,  0.0, 0.0, 1.0,  0.0, 0.0,
+            -1.0, -1.0, +0.0,  0.0, 0.0, 1.0,  0.0, 1.0,
+            +1.0, -1.0, +0.0,  0.0, 0.0, 1.0,  1.0, 1.0,
             -1.0, +1.0, +0.0,  0.0, 0.0, 1.0,  0.0, 0.0,
-            +1.0, -1.0, +0.0,  0.0, 0.0, 1.0,  0.0, 0.0,
-            +1.0, +1.0, +0.0,  0.0, 0.0, 1.0,  0.0, 0.0
+            +1.0, -1.0, +0.0,  0.0, 0.0, 1.0,  1.0, 1.0,
+            +1.0, +1.0, +0.0,  0.0, 0.0, 1.0,  1.0, 0.0
         ]),
         6);
 };
@@ -138,7 +138,7 @@ Graphics3D.prototype.render = function ()
         var displayListLength = displayList.length;
         var gl = renderer.gl;
 
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clearColor(camera.clearColor[0], camera.clearColor[1], camera.clearColor[2], 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
         gl.enable(gl.DEPTH_TEST);
         gl.depthFunc(gl.LESS);

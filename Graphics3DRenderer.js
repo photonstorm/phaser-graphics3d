@@ -31,25 +31,25 @@ Graphics3DRenderer.prototype.init = function ()
 
     // SHADER_UNLIT_UNTEXTURED
     {
-        this.programs[0] = GLutils.createProgram(gl, UnlitUntextured.vert, UnlitUntextured.frag); 
+        this.programs[Graphics3DRenderer.SHADER_UNLIT_UNTEXTURED] = GLutils.createProgram(gl, UnlitUntextured.vert, UnlitUntextured.frag); 
 
-        gl.bindAttribLocation(this.programs[0], 0, 'inPosition');
+        gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_UNLIT_UNTEXTURED], 0, 'inPosition');
     }
 
     // SHADER_LIT_UNTEXTURED
     {
-        this.programs[1] = GLutils.createProgram(gl, LitUntextured.vert, LitUntextured.frag); 
+        this.programs[Graphics3DRenderer.SHADER_LIT_UNTEXTURED] = GLutils.createProgram(gl, LitUntextured.vert, LitUntextured.frag); 
 
-        gl.bindAttribLocation(this.programs[1], 0, 'inPosition');
-        gl.bindAttribLocation(this.programs[1], 1, 'inNormal');
+        gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_LIT_UNTEXTURED], 0, 'inPosition');
+        gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_LIT_UNTEXTURED], 1, 'inNormal');
     }
 
     // SHADER_UNLIT_TEXTURED
     {
-        this.programs[2] = GLutils.createProgram(gl, UnlitTextured.vert, UnlitTextured.frag); 
+        this.programs[Graphics3DRenderer.SHADER_UNLIT_TEXTURED] = GLutils.createProgram(gl, UnlitTextured.vert, UnlitTextured.frag); 
 
-        gl.bindAttribLocation(this.programs[2], 0, 'inPosition');
-        gl.bindAttribLocation(this.programs[2], 1, 'inTexCoord');
+        gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_UNLIT_TEXTURED], 0, 'inPosition');
+        gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_UNLIT_TEXTURED], 1, 'inTexCoord');
     }
 };
 
@@ -173,6 +173,9 @@ Graphics3DRenderer.prototype.draw = function (drawPacket)
     }
     else
     {
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, mesh.texture);
+
         if (mesh.material === null)
         {
             program = this.programs[Graphics3DRenderer.SHADER_UNLIT_TEXTURED];
@@ -180,9 +183,9 @@ Graphics3DRenderer.prototype.draw = function (drawPacket)
 
             // Vertex Layout
             gl.enableVertexAttribArray(0);
-            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, Graphics3DRenderer.VERTEX_SIZE, Graphics3DRenderer.VERTEX_POSITION);
             gl.enableVertexAttribArray(1);
-            gl.vertexAttribPointer(0, 2, gl.FLOAT, false, Graphics3DRenderer.VERTEX_SIZE, Graphics3DRenderer.VERTEX_TEXCOORD);
+            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, Graphics3DRenderer.VERTEX_SIZE, Graphics3DRenderer.VERTEX_POSITION);
+            gl.vertexAttribPointer(1, 2, gl.FLOAT, false, Graphics3DRenderer.VERTEX_SIZE, Graphics3DRenderer.VERTEX_TEXCOORD);
 
             // Per mesh uniform data
             gl.uniform3fv(gl.getUniformLocation(program, 'uFlatColor'), mesh.flatColor);

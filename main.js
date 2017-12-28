@@ -1,66 +1,46 @@
-function onComplete (data)
+var canvas, gl;
+
+function onComplete (meshData, texture0, texture1)
 {
-    var canvas = document.getElementById('canvas');
-    var gl = canvas.getContext('webgl');
+    var lastTime = 0.0;
+    var frameTimeOutput = document.getElementById('msg');
     var renderer = new Graphics3DRenderer(gl);
     var scene = new Graphics3D(renderer);
-    var meshData = scene.makeMeshData(data.vertices, data.vertex_count);
-    var cubeMeshData = scene.makeCubeMeshData();
-    var meshes = [];
+    var data0 = scene.makeQuadMeshData();
+    var data1 = scene.makeMeshData(meshData.vertices, meshData.vertex_count);
+    var quad = scene.makeStaticMesh(-2, 0, 0, data0, texture1);
+    var cube = scene.makeStaticMesh(2, 0, 0, data1, texture0);
 
     scene.camera = new Camera3D();
     scene.camera.setPerspective(Math.PI / 4.0, canvas.width / canvas.height, 0.1, 1000.0);
     scene.camera.lookAt(0, 0, -7, 0, 0, 0);
-    scene.dirLight.setDirection(0, .5, -1);
-    //scene.dirLight.active = true;
+    scene.camera.setClearColor(0.15, 0.15, 0.25);
 
-    scene.pointLights[0].active = true;
-    scene.pointLights[0].range = 2;
-    scene.pointLights[0].intensity = 2;
-    scene.pointLights[0].setPosition(0, 2, 0);
-    scene.pointLights[0].setColor(1, 0, 0);
+    scene.add(cube, quad);
 
-    for (var x = -4; x <= 4; ++x)
-    {
-        for(var z = 0; z < 50; ++z)
-        {
-            var mesh = scene.makeStaticMesh(x, -2.5, z, meshData).setScale(0.25, 0.25, 0.25);
-            var scale = 0.2 + Math.random() * 0.25;
-            //mesh.material = new Material3D();
-            //mesh.material.setDiffuse(Math.random(), Math.random(), Math.random());
-            //mesh.material.setSpecular(Math.random(), Math.random(), Math.random());
-            //mesh.material.setShininess(Math.random() * 512);
-            mesh.setScale(scale, scale, scale);
-            scene.add(mesh);
-            meshes.push(mesh); 
-        }
-    }
-
-    var t = 1.0;
-    var lastTime = 0.0;
-    var frameTimeOutput = document.getElementById('msg');
     function renderScene(time)
     {
-        var delta = time - lastTime;
-        frameTimeOutput.innerHTML = delta.toFixed(2) + ' ms';
-        lastTime = time;
+        lastTime = PrintFrameTime(frameTimeOutput, time, lastTime);
 
-        for (var index = 0; index < meshes.length; ++index)
-        {
-            meshes[index].rotateY(0.01);
-            meshes[index].position[1] = -2.5 + Math.sin(t + index) * 0.2;
-        }
-
-        scene.pointLights[0].setPosition(0, 2, Math.sin(t) * 10);
+        quad.rotateY(0.01);
+        cube.rotateY(0.01);
+        cube.rotateX(-0.01);
+        cube.rotateZ(0.02);
+        
         scene.render();
-
-        t += 0.02;
-
         requestAnimationFrame(renderScene);
     }
 
     renderScene(0);
 };
+
+function PrintFrameTime(output, time, lastTime)
+{
+    var delta = time - lastTime;
+    output.innerHTML = delta.toFixed(2) + ' ms';
+    lastTime = time;
+    return lastTime;
+}
 
 function loadFile(name, callback)
 {
@@ -75,9 +55,26 @@ function loadFile(name, callback)
     xhr.send(null);
 }
 
+function loadImageAsTexture(name, callback)
+{
+    var image = new Image();
+    image.onload = function (evt)
+    {
+        callback(GLutils.createTexture(gl, evt.target));
+    };
+    image.src = name;
+}
+
 window.onload = function ()
 {
-    loadFile('data/teapot.obj', function (data) {
-        onComplete(ParseOBJ(data));
+    canvas = document.getElementById('canvas');
+    gl = canvas.getContext('webgl');
+
+    loadFile('data/meshes/cube.obj', function (data) {
+        loadImageAsTexture('data/textures/brick.jpg', function (texture0) {
+            loadImageAsTexture('data/textures/sao-sinon.png', function (texture1) {
+                onComplete(ParseOBJ(data), texture0, texture1);
+            });
+        });
     });
 };
