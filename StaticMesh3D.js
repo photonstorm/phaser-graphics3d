@@ -1,18 +1,10 @@
-
-function MeshData3D()
-{
-    this.vbo = null;
-    this.vertices = null;
-    this.vertexCount = 0;
-}
-
-function StaticMesh3D(x, y, z, meshData, texture)
+function StaticMesh3D(x, y, z, geometry, texture)
 {
 
     this.position = vec3.fromValues(x, y, z);
     this.scale = vec3.fromValues(1.0, 1.0, 1.0);
     this.quaternion = quat.create();
-    this.meshData = meshData ? meshData : new MeshData3D();
+    this.geometry = geometry ? geometry : new MeshData3D();
     this.material = null;
     this.flatColor = vec3.fromValues(1.0, 1.0, 1.0);
     this.texture = texture ? texture : null;

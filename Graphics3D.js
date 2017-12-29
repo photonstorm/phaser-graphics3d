@@ -16,12 +16,12 @@ Graphics3D.MAX_LIGHTS = 16;
 
 Graphics3D.prototype.cloneStaticMesh = function (x, y, z, staticMesh)
 {
-    var mesh = new StaticMesh3D(x, y, z, staticMesh.meshData);
+    var mesh = new StaticMesh3D(x, y, z, staticMesh.geometry);
 
     return mesh;
 };
 
-Graphics3D.prototype.makeMeshData = function (vertices, vertexCount)
+Graphics3D.prototype.makeGeometryBuffer = function (vertices, vertexCount)
 {
     // Vertex Definition
     //
@@ -33,30 +33,30 @@ Graphics3D.prototype.makeMeshData = function (vertices, vertexCount)
     //
 
     var gl = this.renderer.gl;
-    var meshData = new MeshData3D();
+    var geometry = new GeometryBuffer3D();
 
-    meshData.vbo = gl.createBuffer();
-    meshData.vertices = vertices;
-    meshData.vertexCount = vertexCount;
+    geometry.vbo = gl.createBuffer();
+    geometry.vertices = vertices;
+    geometry.vertexCount = vertexCount;
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, meshData.vbo);
+    gl.bindBuffer(gl.ARRAY_BUFFER, geometry.vbo);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-    return meshData;
+    return geometry;
 };
 
-Graphics3D.prototype.makeStaticMesh = function (x, y, z, meshData, texture)
+Graphics3D.prototype.makeStaticMesh = function (x, y, z, geometry, texture)
 {
     var gl = this.renderer.gl;
-    var mesh = new StaticMesh3D(x, y, z, meshData, texture);
+    var mesh = new StaticMesh3D(x, y, z, geometry, texture);
 
     return mesh;
 };
 
-Graphics3D.prototype.makeQuadMeshData = function ()
+Graphics3D.prototype.makeQuadGeometryBuffer = function ()
 {
-    return this.makeMeshData(new Float32Array([
+    return this.makeGeometryBuffer(new Float32Array([
             -1.0, +1.0, +0.0,  0.0, 0.0, 1.0,  0.0, 0.0,
             -1.0, -1.0, +0.0,  0.0, 0.0, 1.0,  0.0, 1.0,
             +1.0, -1.0, +0.0,  0.0, 0.0, 1.0,  1.0, 1.0,
@@ -67,9 +67,9 @@ Graphics3D.prototype.makeQuadMeshData = function ()
         6);
 };
 
-Graphics3D.prototype.makeCubeMeshData = function ()
+Graphics3D.prototype.makeCubeGeometryBuffer = function ()
 {
-    return this.makeMeshData(new Float32Array([
+    return this.makeGeometryBuffer(new Float32Array([
             -1, +1, +1, -1, +0, +0, +0, +0, 
             -1, -1, -1, -1, +0, +0, +0, +0, 
             -1, -1, +1, -1, +0, +0, +0, +0, 

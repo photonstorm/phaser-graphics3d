@@ -24,6 +24,7 @@ Graphics3DRenderer.VERTEX_TEXCOORD = Float32Array.BYTES_PER_ELEMENT * 6;
 Graphics3DRenderer.SHADER_UNLIT_UNTEXTURED = 0;
 Graphics3DRenderer.SHADER_LIT_UNTEXTURED = 1;
 Graphics3DRenderer.SHADER_UNLIT_TEXTURED = 2;
+Graphics3DRenderer.SHADER_LIT_TEXTURED = 3;
 
 Graphics3DRenderer.prototype.init = function ()
 {
@@ -51,6 +52,15 @@ Graphics3DRenderer.prototype.init = function ()
         gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_UNLIT_TEXTURED], 0, 'inPosition');
         gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_UNLIT_TEXTURED], 1, 'inTexCoord');
     }
+
+    // SHADER_LIT_TEXTURED
+    {
+        this.programs[Graphics3DRenderer.SHADER_LIT_TEXTURED] = GLutils.createProgram(gl, LitTextured.vert, LitTextured.frag); 
+
+        gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_LIT_TEXTURED], 0, 'inPosition');
+        gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_LIT_TEXTURED], 1, 'inNormal');
+        gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_LIT_TEXTURED], 2, 'inTexCoord');
+    }
 };
 
 // Call this only once per frame.
@@ -71,9 +81,12 @@ Graphics3DRenderer.prototype.updateUniforms = function (uniformData)
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'uProjectionMatrix'), false, camera.projection);
     }
 
-    // Update SHADER_LIT_UNTEXTURED uniforms
+    var litIndices = [Graphics3DRenderer.SHADER_LIT_UNTEXTURED, Graphics3DRenderer.SHADER_LIT_TEXTURED];
+
+    // Update Lit uniforms
+    for (var programIndex = 0; programIndex  < litIndices.length; ++programIndex)
     {
-        var program = programs[Graphics3DRenderer.SHADER_LIT_UNTEXTURED];
+        var program = programs[litIndices[programIndex]];
 
         gl.useProgram(program);
         gl.uniform3fv(gl.getUniformLocation(program, 'uCameraPosition'), camera.position);
@@ -99,7 +112,6 @@ Graphics3DRenderer.prototype.updateUniforms = function (uniformData)
             
             if (light.lastActiveState !== light.active)
             {
-                light.lastActiveState = light.active;
                 gl.uniform1i(gl.getUniformLocation(program, 'uPointLights[' + index + '].active'), light.active);
             }
 
@@ -113,6 +125,12 @@ Graphics3DRenderer.prototype.updateUniforms = function (uniformData)
         }
     }
 
+    for (var index = 0; index < pointLights.length; ++index)
+    {
+        var light = pointLights[index];
+        light.lastActiveState = light.active;
+    }
+
 };
 
 Graphics3DRenderer.prototype.draw = function (drawPacket)
@@ -124,11 +142,11 @@ Graphics3DRenderer.prototype.draw = function (drawPacket)
     var camera = drawPacket.camera;
     var dirLight = drawPacket.dirLight;
     var pointLights = drawPacket.pointLights;
-    var meshData = mesh.meshData;
+    var geometry = mesh.geometry;
     
-    if (!meshData || meshData.vertexCount === 0) return;
+    if (!geometry || geometry.vertexCount === 0) return;
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, meshData.vbo);
+    gl.bindBuffer(gl.ARRAY_BUFFER, geometry.vbo);
 
     mat4.fromRotationTranslationScale(model, mesh.quaternion, mesh.position, mesh.scale);
 
@@ -152,7 +170,7 @@ Graphics3DRenderer.prototype.draw = function (drawPacket)
             var invModel = mat4.invert(this.cachedModel[1], model);
 
             invModel = mat4.transpose(invModel, invModel);
-            program = this.programs[1];
+            program = this.programs[Graphics3DRenderer.SHADER_LIT_UNTEXTURED];
 
             gl.useProgram(program);
 
@@ -190,8 +208,35 @@ Graphics3DRenderer.prototype.draw = function (drawPacket)
             // Per mesh uniform data
             gl.uniform3fv(gl.getUniformLocation(program, 'uFlatColor'), mesh.flatColor);
         }
+        else
+        {
+            var material = mesh.material;
+            var invModel = mat4.invert(this.cachedModel[1], model);
+
+            invModel = mat4.transpose(invModel, invModel);
+            program = this.programs[Graphics3DRenderer.SHADER_LIT_TEXTURED];
+
+            gl.useProgram(program);
+
+            // Vertex Layout
+            gl.enableVertexAttribArray(0);
+            gl.enableVertexAttribArray(1);
+            gl.enableVertexAttribArray(2);
+            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, Graphics3DRenderer.VERTEX_SIZE, Graphics3DRenderer.VERTEX_POSITION);
+            gl.vertexAttribPointer(1, 3, gl.FLOAT, false, Graphics3DRenderer.VERTEX_SIZE, Graphics3DRenderer.VERTEX_NORMALS);
+            gl.vertexAttribPointer(2, 2, gl.FLOAT, false, Graphics3DRenderer.VERTEX_SIZE, Graphics3DRenderer.VERTEX_TEXCOORD);
+
+            // Per mesh uniform data
+            gl.uniformMatrix4fv(gl.getUniformLocation(program, 'uInvModelMatrix'), false, invModel);
+            gl.uniform1f(gl.getUniformLocation(program, 'uMaterial.shininess'), material.shininess);
+            gl.uniform3fv(gl.getUniformLocation(program, 'uMaterial.ambient'), material.ambient);
+            gl.uniform3fv(gl.getUniformLocation(program, 'uMaterial.diffuse'), material.diffuse);
+            gl.uniform3fv(gl.getUniformLocation(program, 'uMaterial.specular'), material.specular);
+            gl.uniform3fv(gl.getUniformLocation(program, 'uMaterial.emission'), material.emission);
+
+        }
     }
 
     gl.uniformMatrix4fv(gl.getUniformLocation(program, 'uModelMatrix'), false, model);
-    gl.drawArrays(gl.TRIANGLES, 0, meshData.vertexCount);
+    gl.drawArrays(gl.TRIANGLES, 0, geometry.vertexCount);
 };
