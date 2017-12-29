@@ -2,6 +2,7 @@ var canvas, gl;
 
 function onComplete (meshData, texture0, texture1)
 {
+    var step = 0.0;
     var lastTime = 0.0;
     var frameTimeOutput = document.getElementById('msg');
     var renderer = new Graphics3DRenderer(gl);
@@ -10,6 +11,8 @@ function onComplete (meshData, texture0, texture1)
     var data1 = scene.makeGeometryBuffer(meshData.vertices, meshData.vertex_count);
     var cube0 = scene.makeStaticMesh(-2, 0, 0, data1, null);
     var cube1 = scene.makeStaticMesh(2, 0, 0, data1, texture0);
+    var light0 = scene.makeStaticMesh(0, 0, 0, data1, null).setScale(0.05, 0.05, 0.05);
+    var light1 = scene.makeStaticMesh(0, 0, 0, data1, null).setScale(0.05, 0.05, 0.05);
 
     scene.camera = new Camera3D();
     scene.camera.setPerspective(Math.PI / 4.0, canvas.width / canvas.height, 0.1, 1000.0);
@@ -19,21 +22,30 @@ function onComplete (meshData, texture0, texture1)
     scene.dirLight.setDirection(0, .5, -1);
     
     scene.pointLights[0].active = true;
-    scene.pointLights[0].range = 20;
-    scene.pointLights[0].intensity = 2;
     scene.pointLights[0].setPosition(0, -2, -1);
-    scene.pointLights[0].setColor(0, 1, 1);
+    scene.pointLights[0].setColor(1, 0, 1);
+
+    scene.pointLights[1].active = true;
+    scene.pointLights[1].setPosition(0, -2, -1);
+    scene.pointLights[1].setColor(0, 1, 1);
 
     cube1.material = new Material3D();
     cube1.material.setAmbient(0, 0, 0);
+    cube1.material.setShininess(128);
+    cube1.material.setSpecular(1, 1, 1);
 
     cube0.material = cube1.material;
 
-    scene.add(cube0, cube1);
+    scene.add(cube0, cube1, light0, light1);
 
     function renderScene(time)
     {
         lastTime = PrintFrameTime(frameTimeOutput, time, lastTime);
+
+        scene.pointLights[0].setPosition(Math.sin(step) * 4, 0, Math.cos(step) * 4);
+        scene.pointLights[1].setPosition(0, Math.sin(step * 2) * 3, Math.cos(step * 2) * 3);
+        light0.setPosition(scene.pointLights[0].position[0], scene.pointLights[0].position[1], scene.pointLights[0].position[2]);
+        light1.setPosition(scene.pointLights[1].position[0], scene.pointLights[1].position[1], scene.pointLights[1].position[2]);
 
         cube0.rotateY(0.01);
         cube0.rotateX(-0.01);
@@ -44,6 +56,7 @@ function onComplete (meshData, texture0, texture1)
         
         scene.render();
         requestAnimationFrame(renderScene);
+        step += 0.01;
     }
 
     renderScene(0);
@@ -85,7 +98,7 @@ window.onload = function ()
     canvas = document.getElementById('canvas');
     gl = canvas.getContext('webgl');
 
-    loadFile('data/meshes/cube.obj', function (data) {
+    loadFile('data/meshes/sphere.obj', function (data) {
         loadImageAsTexture('data/textures/brick.jpg', function (texture0) {
             loadImageAsTexture('data/textures/sao-sinon.png', function (texture1) {
                 onComplete(ParseOBJ(data), texture0, texture1);
