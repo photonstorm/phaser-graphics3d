@@ -10,9 +10,9 @@ function onComplete (meshData, texture0, texture1)
     var data0 = scene.makeQuadGeometryBuffer();
     var data1 = scene.makeGeometryBuffer(meshData.vertices, meshData.vertex_count);
     var cube0 = scene.makeStaticMesh(-2, 0, 0, data1, null);
-    var cube1 = scene.makeStaticMesh(2, 0, 0, data1, texture0);
-    var light0 = scene.makeStaticMesh(0, 0, 0, data1, null).setScale(0.05, 0.05, 0.05);
-    var light1 = scene.makeStaticMesh(0, 0, 0, data1, null).setScale(0.05, 0.05, 0.05);
+    var cube1 = scene.makeStaticMesh(2, 0, 0, data1, texture0, texture1);
+    var light0 = scene.makeStaticMesh(0, 0, 0, data0, null).setScale(0.05, 0.05, 0.05);
+    var light1 = scene.makeStaticMesh(0, 0, 0, data0, null).setScale(0.05, 0.05, 0.05);
 
     scene.camera = new Camera3D();
     scene.camera.setPerspective(Math.PI / 4.0, canvas.width / canvas.height, 0.1, 1000.0);
@@ -48,15 +48,11 @@ function onComplete (meshData, texture0, texture1)
         light1.setPosition(scene.pointLights[1].position[0], scene.pointLights[1].position[1], scene.pointLights[1].position[2]);
 
         cube0.rotateY(0.01);
-        cube0.rotateX(-0.01);
-        cube0.rotateZ(0.02);
         cube1.rotateY(0.01);
-        cube1.rotateX(-0.01);
-        cube1.rotateZ(0.02);
         
         scene.render();
         requestAnimationFrame(renderScene);
-        step += 0.01;
+        step += 0.02;
     }
 
     renderScene(0);
@@ -98,9 +94,9 @@ window.onload = function ()
     canvas = document.getElementById('canvas');
     gl = canvas.getContext('webgl');
 
-    loadFile('data/meshes/sphere.obj', function (data) {
+    loadFile('data/meshes/suzanne.obj', function (data) {
         loadImageAsTexture('data/textures/brick.jpg', function (texture0) {
-            loadImageAsTexture('data/textures/sao-sinon.png', function (texture1) {
+            loadImageAsTexture('data/textures/brick_normal.png', function (texture1) {
                 onComplete(ParseOBJ(data), texture0, texture1);
             });
         });

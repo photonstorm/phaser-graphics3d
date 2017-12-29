@@ -66,6 +66,7 @@ var LitTextured =
     #define POINT_LIGHT_COUNT 16
 
     uniform sampler2D uMainSampler;
+    uniform sampler2D uNormalSampler;
     uniform Material uMaterial;
     uniform DirLight uDirLight;
     uniform PointLight uPointLights[POINT_LIGHT_COUNT];
@@ -117,17 +118,20 @@ var LitTextured =
     {
         vec3 finalColor = vec3(0.0);
         vec4 texColor = texture2D(uMainSampler, outTexCoord);
+        vec4 texNormColor = texture2D(uNormalSampler, outTexCoord);
+        vec3 texNorm = normalize(vec3(texNormColor.rgb * 2.0 - 1.0));
+        vec3 normal = outNormal;
 
         if (uDirLight.active)
         {
-            finalColor += GetDirLight(uDirLight, uMaterial, outNormal, uCameraPos);
+            finalColor += GetDirLight(uDirLight, uMaterial, normal, uCameraPos);
         }
 
         for (int index = 0; index < POINT_LIGHT_COUNT; ++index)
         {   
             if (uPointLights[index].active)
             {
-                finalColor += GetPointLight(uPointLights[index], uMaterial, outNormal, outEyePosition);
+                finalColor += GetPointLight(uPointLights[index], uMaterial, normal, outEyePosition);
             }
         }
 

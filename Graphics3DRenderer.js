@@ -13,14 +13,16 @@ function Graphics3DRenderer(webglContext)
     this.cachedModel = [];
     this.cachedModel[0] = mat4.create();
     this.cachedModel[1] = mat4.create();
+    this.emptyTexture = GLutils.createTextureFromBuffer(webglContext, 1, 1, new Uint8Array([255, 255, 255, 255]));
 
     this.init();
 }
 
-Graphics3DRenderer.VERTEX_SIZE = Float32Array.BYTES_PER_ELEMENT * 8;
+Graphics3DRenderer.VERTEX_SIZE = Float32Array.BYTES_PER_ELEMENT * 11;
 Graphics3DRenderer.VERTEX_POSITION = 0;
 Graphics3DRenderer.VERTEX_NORMALS = Float32Array.BYTES_PER_ELEMENT * 3;
 Graphics3DRenderer.VERTEX_TEXCOORD = Float32Array.BYTES_PER_ELEMENT * 6;
+Graphics3DRenderer.VERTEX_TANGENT = Float32Array.BYTES_PER_ELEMENT * 8;
 Graphics3DRenderer.SHADER_UNLIT_UNTEXTURED = 0;
 Graphics3DRenderer.SHADER_LIT_UNTEXTURED = 1;
 Graphics3DRenderer.SHADER_UNLIT_TEXTURED = 2;
@@ -60,6 +62,10 @@ Graphics3DRenderer.prototype.init = function ()
         gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_LIT_TEXTURED], 0, 'inPosition');
         gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_LIT_TEXTURED], 1, 'inNormal');
         gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_LIT_TEXTURED], 2, 'inTexCoord');
+
+        gl.useProgram(this.programs[Graphics3DRenderer.SHADER_LIT_TEXTURED]);
+        gl.uniform1i(gl.getUniformLocation(this.programs[Graphics3DRenderer.SHADER_LIT_TEXTURED], 'uNormalSampler'), 1);
+        gl.useProgram(null);
     }
 };
 
@@ -193,6 +199,12 @@ Graphics3DRenderer.prototype.draw = function (drawPacket)
     {
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, mesh.texture);
+
+        gl.activeTexture(gl.TEXTURE1);
+        if (mesh.normal)
+            gl.bindTexture(gl.TEXTURE_2D, mesh.normal);
+        else
+            gl.bindTexture(gl.TEXTURE_2D, this.emptyTexture);
 
         if (mesh.material === null)
         {

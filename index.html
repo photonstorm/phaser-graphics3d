@@ -52,7 +52,7 @@
             for (var i = 0; i < a.length; i += 6)
             {
                 var n = a.slice(i, i + 6);
-                n.push(0, 0);
+                n.push(0, 0, 0, 0, 0);
 
                 Array.prototype.push.apply(data, n);
             }
@@ -62,7 +62,7 @@
         var obj = objpar(text);
         var meshData = objpar_to_mesh(obj);
 
-        if (meshData.attributes.texcoord)
+        if (meshData.texcoord)
             meshData.vertices = new Float32Array(meshData.vertices);
         else
             meshData.vertices = new Float32Array(AppendUV(meshData.vertices));

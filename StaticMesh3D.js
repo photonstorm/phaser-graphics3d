@@ -1,4 +1,4 @@
-function StaticMesh3D(x, y, z, geometry, texture)
+function StaticMesh3D(x, y, z, geometry, texture, normal)
 {
 
     this.position = vec3.fromValues(x, y, z);
@@ -8,6 +8,7 @@ function StaticMesh3D(x, y, z, geometry, texture)
     this.material = null;
     this.flatColor = vec3.fromValues(1.0, 1.0, 1.0);
     this.texture = texture ? texture : null;
+    this.normal = normal ? normal : null;
 
 }
 
