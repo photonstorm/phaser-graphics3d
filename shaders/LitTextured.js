@@ -14,10 +14,12 @@ var LitTextured =
     attribute vec3 inPosition;
     attribute vec3 inNormal;
     attribute vec2 inTexCoord;
+    attribute vec3 inTangent;
 
     varying vec3 outEyePosition;
     varying vec3 outNormal;
     varying vec2 outTexCoord;
+    varying vec3 outTangent;
 
     void main()
     {
@@ -26,6 +28,7 @@ var LitTextured =
 
         outEyePosition = vec3(uModelMatrix * vec4(inPosition, 1.0));
         outNormal = vec3(uInvModelMatrix * vec4(inNormal, 0.0));
+        outTangent = vec3(uInvModelMatrix * vec4(inTangent, 0.0));
         outTexCoord = inTexCoord;
     }
     `,
@@ -75,6 +78,7 @@ var LitTextured =
     varying vec3 outEyePosition;
     varying vec3 outNormal;
     varying vec2 outTexCoord;
+    varying vec3 outTangent;
 
     float SafePow(float x, float y)
     {
@@ -114,13 +118,25 @@ var LitTextured =
         return finalColor;
     }
 
+    vec3 GetNormal(vec3 normal, vec3 tangent, vec3 normalMap)
+    {
+        vec3 norm = normalize(normal);
+        vec3 tan = normalize(tangent);
+        tan = normalize(tan - dot(tan, norm) * norm);
+        vec3 bitan = cross(tan, norm);
+        mat3 tbn = mat3(tan, bitan, norm);
+        vec3 result = tbn * normalMap;
+        result = normalize(result);
+        return result;        
+    }
+
     void main()
     {
         vec3 finalColor = vec3(0.0);
         vec4 texColor = texture2D(uMainSampler, outTexCoord);
         vec4 texNormColor = texture2D(uNormalSampler, outTexCoord);
         vec3 texNorm = normalize(vec3(texNormColor.rgb * 2.0 - 1.0));
-        vec3 normal = outNormal;
+        vec3 normal = GetNormal(outNormal, outTangent, texNorm);
 
         if (uDirLight.active)
         {

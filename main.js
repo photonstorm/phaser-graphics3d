@@ -10,7 +10,7 @@ function onComplete (meshData, texture0, texture1)
     var data0 = scene.makeQuadGeometryBuffer();
     var data1 = scene.makeGeometryBuffer(meshData.vertices, meshData.vertex_count);
     var cube0 = scene.makeStaticMesh(-2, 0, 0, data1, null);
-    var cube1 = scene.makeStaticMesh(2, 0, 0, data1, texture0, texture1);
+    var cube1 = scene.makeStaticMesh(2, 0, 0, data1, texture0, null);
     var light0 = scene.makeStaticMesh(0, 0, 0, data0, null).setScale(0.05, 0.05, 0.05);
     var light1 = scene.makeStaticMesh(0, 0, 0, data0, null).setScale(0.05, 0.05, 0.05);
 
@@ -31,12 +31,24 @@ function onComplete (meshData, texture0, texture1)
 
     cube1.material = new Material3D();
     cube1.material.setAmbient(0, 0, 0);
-    cube1.material.setShininess(128);
-    cube1.material.setSpecular(1, 1, 1);
+    cube1.material.setShininess(512);
+    cube1.material.setSpecular(0.2, 0.2, 0.2);
 
     cube0.material = cube1.material;
 
     scene.add(cube0, cube1, light0, light1);
+
+    window.onmousedown = function ()
+    {
+        if (cube1.normal === null)
+        {
+            cube1.normal = texture1;
+        }
+        else
+        {
+            cube1.normal = null;
+        }
+    };
 
     function renderScene(time)
     {
@@ -94,9 +106,9 @@ window.onload = function ()
     canvas = document.getElementById('canvas');
     gl = canvas.getContext('webgl');
 
-    loadFile('data/meshes/suzanne.obj', function (data) {
-        loadImageAsTexture('data/textures/brick.jpg', function (texture0) {
-            loadImageAsTexture('data/textures/brick_normal.png', function (texture1) {
+    loadFile('data/meshes/rock.obj', function (data) {
+        loadImageAsTexture('data/textures/rocks_01_dif.png', function (texture0) {
+            loadImageAsTexture('data/textures/rocks_01_nm.png', function (texture1) {
                 onComplete(ParseOBJ(data), texture0, texture1);
             });
         });

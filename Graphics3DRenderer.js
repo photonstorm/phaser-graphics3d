@@ -13,7 +13,7 @@ function Graphics3DRenderer(webglContext)
     this.cachedModel = [];
     this.cachedModel[0] = mat4.create();
     this.cachedModel[1] = mat4.create();
-    this.emptyTexture = GLutils.createTextureFromBuffer(webglContext, 1, 1, new Uint8Array([255, 255, 255, 255]));
+    this.emptyTexture = GLutils.createTextureFromBuffer(webglContext, 1, 1, new Uint8Array([127, 127, 255, 255]));
 
     this.init();
 }
@@ -62,6 +62,7 @@ Graphics3DRenderer.prototype.init = function ()
         gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_LIT_TEXTURED], 0, 'inPosition');
         gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_LIT_TEXTURED], 1, 'inNormal');
         gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_LIT_TEXTURED], 2, 'inTexCoord');
+        gl.bindAttribLocation(this.programs[Graphics3DRenderer.SHADER_LIT_TEXTURED], 3, 'inTangent');
 
         gl.useProgram(this.programs[Graphics3DRenderer.SHADER_LIT_TEXTURED]);
         gl.uniform1i(gl.getUniformLocation(this.programs[Graphics3DRenderer.SHADER_LIT_TEXTURED], 'uNormalSampler'), 1);
@@ -234,9 +235,11 @@ Graphics3DRenderer.prototype.draw = function (drawPacket)
             gl.enableVertexAttribArray(0);
             gl.enableVertexAttribArray(1);
             gl.enableVertexAttribArray(2);
+            gl.enableVertexAttribArray(3);
             gl.vertexAttribPointer(0, 3, gl.FLOAT, false, Graphics3DRenderer.VERTEX_SIZE, Graphics3DRenderer.VERTEX_POSITION);
             gl.vertexAttribPointer(1, 3, gl.FLOAT, false, Graphics3DRenderer.VERTEX_SIZE, Graphics3DRenderer.VERTEX_NORMALS);
             gl.vertexAttribPointer(2, 2, gl.FLOAT, false, Graphics3DRenderer.VERTEX_SIZE, Graphics3DRenderer.VERTEX_TEXCOORD);
+            gl.vertexAttribPointer(3, 3, gl.FLOAT, false, Graphics3DRenderer.VERTEX_SIZE, Graphics3DRenderer.VERTEX_TANGENT);
 
             // Per mesh uniform data
             gl.uniformMatrix4fv(gl.getUniformLocation(program, 'uInvModelMatrix'), false, invModel);
