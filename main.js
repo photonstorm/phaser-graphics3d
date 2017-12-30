@@ -10,7 +10,7 @@ function onComplete (meshData, texture0, texture1)
     var data0 = scene.makeQuadGeometryBuffer();
     var data1 = scene.makeGeometryBuffer(meshData.vertices, meshData.vertex_count);
     var cube0 = scene.makeStaticMesh(-2, 0, 0, data1, null);
-    var cube1 = scene.makeStaticMesh(2, 0, 0, data1, texture0, null);
+    var cube1 = scene.makeStaticMesh(2, 0, 0, data1, texture0, texture1);
     var light0 = scene.makeStaticMesh(0, 0, 0, data0, null).setScale(0.05, 0.05, 0.05);
     var light1 = scene.makeStaticMesh(0, 0, 0, data0, null).setScale(0.05, 0.05, 0.05);
 
@@ -38,7 +38,7 @@ function onComplete (meshData, texture0, texture1)
 
     scene.add(cube0, cube1, light0, light1);
 
-    window.onmousedown = function ()
+    window.ontouchend = function ()
     {
         if (cube1.normal === null)
         {
@@ -47,6 +47,21 @@ function onComplete (meshData, texture0, texture1)
         else
         {
             cube1.normal = null;
+        }
+    };
+
+    window.onkeyup = function (e)
+    {
+        if (e.code === 'Space')
+        {
+            if (cube1.normal === null)
+            {
+                cube1.normal = texture1;
+            }
+            else
+            {
+                cube1.normal = null;
+            }
         }
     };
 
@@ -105,12 +120,30 @@ window.onload = function ()
 {
     canvas = document.getElementById('canvas');
     gl = canvas.getContext('webgl');
+    var _texture0, _texture1, _data;
+
+    document.getElementById('msg').innerHTML = "Loading...";
 
     loadFile('data/meshes/rock.obj', function (data) {
-        loadImageAsTexture('data/textures/rocks_01_dif.png', function (texture0) {
-            loadImageAsTexture('data/textures/rocks_01_nm.png', function (texture1) {
-                onComplete(ParseOBJ(data), texture0, texture1);
-            });
-        });
+        _data = data;
+        if (_texture0 && texture1 && _data)
+        {
+            onComplete(ParseOBJ(_data), _texture0, _texture1);
+        }
+    });
+
+    loadImageAsTexture('data/textures/rocks_01_dif.jpg', function (texture0) {
+        _texture0 = texture0;
+        if (_texture1 && _data)
+        {
+            onComplete(ParseOBJ(_data), _texture0, _texture1);
+        }
+    });
+    loadImageAsTexture('data/textures/rocks_01_nm.jpg', function (texture1) {
+        _texture1 = texture1;
+        if (_texture0 && _data)
+        {
+            onComplete(ParseOBJ(_data), _texture0, _texture1);
+        }
     });
 };
